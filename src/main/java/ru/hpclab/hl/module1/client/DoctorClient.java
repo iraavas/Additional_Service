@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class DoctorClient {
 
     private final RestTemplate restTemplate;
-    private final String baseUrl = "http://localhost:8081/doctors"; // Имя сервиса из docker-compose
+    private final String baseUrl = "http://spring-boot-app:8081/doctors";
 
     public DoctorClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

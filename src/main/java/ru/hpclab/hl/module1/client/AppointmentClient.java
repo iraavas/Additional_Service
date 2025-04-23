@@ -12,7 +12,7 @@ import java.util.List;
 public class AppointmentClient {
 
     private final RestTemplate restTemplate;
-    private final String baseUrl = "http://localhost:8081/appointments"; // Имя сервиса из docker-compose
+    private final String baseUrl = "http://spring-boot-app:8081/appointments";
 
     public AppointmentClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.hpclab.hl.module1.dto.DoctorDTO;
 import ru.hpclab.hl.module1.service.AppointmentAvailabilityService;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -21,8 +21,8 @@ public class AppointmentAvailabilityController {
     @GetMapping("/check")
     public List<DoctorDTO> getAvailableDoctors(
             @RequestParam String specialization,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime appointmentDate
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        return service.getAvailableDoctors(specialization, appointmentDate);
+        return service.getAvailableDoctors(specialization, date);
     }
 }

@@ -6,7 +6,7 @@ import ru.hpclab.hl.module1.client.DoctorClient;
 import ru.hpclab.hl.module1.dto.AppointmentDTO;
 import ru.hpclab.hl.module1.dto.DoctorDTO;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,15 +21,21 @@ public class AppointmentAvailabilityService {
         this.appointmentClient = appointmentClient;
     }
 
-    public List<DoctorDTO> getAvailableDoctors(String specialization, LocalDateTime dateTime) {
-        List<DoctorDTO> doctors = doctorClient.getDoctorsBySpecialization(specialization);
+    public List<DoctorDTO> getAvailableDoctors(String specialization, LocalDate date) {
         List<AppointmentDTO> appointments = appointmentClient.getAppointments();
+        List<DoctorDTO> allDoctors = doctorClient.getDoctorsBySpecialization(specialization);
 
-        return doctors.stream()
-                .filter(doctor -> appointments.stream().noneMatch(app ->
-                        app.getDoctorId().equals(doctor.getId()) &&
-                                app.getAppointmentDate().equals(dateTime)
-                ))
+        List<Long> busyDoctorIds = appointments.stream()
+                .filter(app ->
+                        specialization.equalsIgnoreCase(app.getSpecialization()) &&
+                                app.getAppointmentDate().toLocalDate().equals(date)
+                )
+                .map(AppointmentDTO::getDoctorId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        return allDoctors.stream()
+                .filter(doc -> !busyDoctorIds.contains(doc.getId()))
                 .collect(Collectors.toList());
     }
 }

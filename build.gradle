@@ -31,5 +31,12 @@ dependencies {
 
 tasks.named('bootJar') {
 	archiveFileName = 'app.jar'
-	mainClass = 'ru.hpclab.hl.additional.AdditionalServiceApplication'
+	mainClass = 'ru.hpclab.hl.module1.AdditionalServiceApplication'
 }
+
+tasks.named('jar') {
+	enabled = false
+}
+
+
+
