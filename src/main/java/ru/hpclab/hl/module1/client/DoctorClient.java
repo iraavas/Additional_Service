@@ -1,5 +1,6 @@
 package ru.hpclab.hl.module1.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -13,15 +14,24 @@ import java.util.stream.Collectors;
 public class DoctorClient {
 
     private final RestTemplate restTemplate;
-    private final String baseUrl = "http://spring-boot-app:8081/doctors";
+
+    @Value("${main.service.host}")
+    private String mainServiceHost;
+
+    @Value("${main.service.port}")
+    private String mainServicePort;
 
     public DoctorClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public List<DoctorDTO> getDoctorsBySpecialization(String specialization) {
+        String url = "http://" + mainServiceHost + ":" + mainServicePort + "/doctors";
+
         ResponseEntity<List<DoctorDTO>> response = restTemplate.exchange(
-                baseUrl, HttpMethod.GET, null,
+                url,
+                HttpMethod.GET,
+                null,
                 new ParameterizedTypeReference<>() {}
         );
 
