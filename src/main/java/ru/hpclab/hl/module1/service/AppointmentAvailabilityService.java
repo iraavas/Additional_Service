@@ -5,6 +5,7 @@ import ru.hpclab.hl.module1.client.AppointmentClient;
 import ru.hpclab.hl.module1.client.DoctorClient;
 import ru.hpclab.hl.module1.dto.AppointmentDTO;
 import ru.hpclab.hl.module1.dto.DoctorDTO;
+import ru.hpclab.hl.module1.service.statistics.ObservabilityService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,27 +16,39 @@ public class AppointmentAvailabilityService {
 
     private final DoctorClient doctorClient;
     private final AppointmentClient appointmentClient;
+    private final ObservabilityService observabilityService;
 
-    public AppointmentAvailabilityService(DoctorClient doctorClient, AppointmentClient appointmentClient) {
+    public AppointmentAvailabilityService(
+            DoctorClient doctorClient,
+            AppointmentClient appointmentClient,
+            ObservabilityService observabilityService
+    ) {
         this.doctorClient = doctorClient;
         this.appointmentClient = appointmentClient;
+        this.observabilityService = observabilityService;
     }
 
     public List<DoctorDTO> getAvailableDoctors(String specialization, LocalDate date) {
+
         List<AppointmentDTO> appointments = appointmentClient.getAppointments();
         List<DoctorDTO> allDoctors = doctorClient.getDoctorsBySpecialization(specialization);
 
-        List<Long> busyDoctorIds = appointments.stream()
-                .filter(app ->
-                        specialization.equalsIgnoreCase(app.getSpecialization()) &&
-                                app.getAppointmentDate().toLocalDate().equals(date)
-                )
-                .map(AppointmentDTO::getDoctorId)
-                .distinct()
-                .collect(Collectors.toList());
+        observabilityService.start("availability.check");
+        try {
+            List<Long> busyDoctorIds = appointments.stream()
+                    .filter(app ->
+                            specialization.equalsIgnoreCase(app.getSpecialization()) &&
+                                    app.getAppointmentDate().toLocalDate().equals(date)
+                    )
+                    .map(AppointmentDTO::getDoctorId)
+                    .distinct()
+                    .collect(Collectors.toList());
 
-        return allDoctors.stream()
-                .filter(doc -> !busyDoctorIds.contains(doc.getId()))
-                .collect(Collectors.toList());
+            return allDoctors.stream()
+                    .filter(doc -> !busyDoctorIds.contains(doc.getId()))
+                    .collect(Collectors.toList());
+        } finally {
+            observabilityService.stop("availability.check");
+        }
     }
 }

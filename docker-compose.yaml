@@ -54,6 +54,10 @@ services:
       - app-network
     depends_on:
       - app
+    environment:
+      STATISTICS_OBSERVABILITY: true
+      OBSERVABILITY_INTERVALS: 10,30,60
+      SERVICE_STATISTIC_OBSERVABILITY_DELAY: 5000
 
   pgadmin:
     image: dpage/pgadmin4
